@@ -23,14 +23,23 @@ backend/   API, парсинг XML, SQLite, расчёт метрик
 frontend/  интерфейс на React/Vite
 data/      XML-файлы OhioT1DM и локальная база cgm.db
 start.sh   запуск всего проекта одной командой
+start.cmd  запуск всего проекта одной командой в Windows CMD
 ```
 
 ## Быстрый запуск
 
-После клонирования из корня репозитория достаточно выполнить:
+После клонирования из корня репозитория достаточно выполнить одну команду.
+
+### Linux / macOS / WSL
 
 ```bash
 ./start.sh
+```
+
+### Windows CMD
+
+```bat
+start.cmd
 ```
 
 Скрипт автоматически:
@@ -50,12 +59,14 @@ http://localhost:5173/app/
 Остановка:
 
 ```text
-Ctrl+C
+Linux / macOS: Ctrl+C в окне `start.sh`
+Windows CMD: закройте окно frontend и отдельное окно backend
 ```
 
 ## Требования
 
 - `python3`
+- `python` или `py` для Windows
 - `node`
 - `npm`
 
@@ -100,3 +111,11 @@ BACKEND_PORT=18000 FRONTEND_PORT=4173 ./start.sh
 ```
 
 Frontend-прокси подхватит `BACKEND_PORT` автоматически.
+
+Для Windows CMD:
+
+```bat
+set BACKEND_PORT=18000
+set FRONTEND_PORT=4173
+start.cmd
+```
