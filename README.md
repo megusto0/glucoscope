@@ -45,8 +45,8 @@ start.cmd
 Скрипт автоматически:
 
 - создаст `.venv`, если его ещё нет
-- установит Python-зависимости из `backend/requirements.txt`
-- установит npm-зависимости из `frontend/package-lock.json`
+- установит или обновит Python-зависимости из `backend/requirements.txt`
+- установит npm-зависимости во `frontend`, если папки `node_modules` ещё нет
 - запустит backend на `http://localhost:8000`
 - запустит frontend на `http://localhost:5173/app/`
 
