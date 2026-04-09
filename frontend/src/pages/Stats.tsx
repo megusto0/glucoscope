@@ -7,6 +7,14 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
+interface RecentVisit {
+  ts: string;
+  ip: string;
+  page: string;
+  user_agent: string;
+  referrer: string;
+}
+
 interface GroupedVisit {
   ip: string;
   count: number;
@@ -22,8 +30,31 @@ interface StatsData {
   daily: { date: string; count: number }[];
   unique_daily: { date: string; count: number }[];
   pages: { page: string; cnt: number }[];
-  grouped_visits: GroupedVisit[];
+  grouped_visits?: GroupedVisit[];
+  recent?: RecentVisit[];
   hourly: { hour: string; cnt: number }[];
+}
+
+function groupVisits(visits: RecentVisit[] | undefined): GroupedVisit[] {
+  if (!visits || visits.length === 0) return [];
+
+  const byIp = new Map<string, RecentVisit[]>();
+  for (const visit of visits) {
+    const ip = visit.ip || 'unknown';
+    const existing = byIp.get(ip);
+    if (existing) existing.push(visit);
+    else byIp.set(ip, [visit]);
+  }
+
+  return Array.from(byIp.entries())
+    .map(([ip, items]) => ({
+      ip,
+      count: items.length,
+      last_seen: items[0]?.ts ?? '',
+      user_agent: items[0]?.user_agent ?? '',
+      visits: items,
+    }))
+    .sort((a, b) => b.last_seen.localeCompare(a.last_seen));
 }
 
 export default function Stats() {
@@ -31,6 +62,15 @@ export default function Stats() {
 
   if (loading) return <Loader />;
   if (!data) return <div className="p-4 md:p-8" style={{ color: 'var(--text-muted)' }}>Нет данных</div>;
+
+  const groupedVisits = data.grouped_visits ?? groupVisits(data.recent);
+  const uniqueByDate = new Map((data.unique_daily ?? []).map((item) => [item.date, item.count]));
+  const dailyData = (data.daily ?? []).map((item) => ({
+    ...item,
+    unique: uniqueByDate.get(item.date) ?? 0,
+  }));
+  const pages = data.pages ?? [];
+  const hourly = data.hourly ?? [];
 
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-8">
@@ -51,7 +91,7 @@ export default function Stats() {
         </div>
         <div style={{ height: 220 }}>
           <ResponsiveContainer>
-            <BarChart data={data.daily.map((d, i) => ({ ...d, unique: data.unique_daily[i]?.count || 0 }))} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+            <BarChart data={dailyData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
               <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#8a8a8a' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: '#8a8a8a' }} axisLine={false} tickLine={false} width={30} allowDecimals={false} />
@@ -69,7 +109,7 @@ export default function Stats() {
           <h3 className="text-sm font-medium mb-3">Распределение по часам (UTC+4)</h3>
           <div style={{ height: 180 }}>
             <ResponsiveContainer>
-              <BarChart data={data.hourly} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+              <BarChart data={hourly} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                 <XAxis dataKey="hour" tick={{ fontSize: 10, fill: '#8a8a8a' }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: '#8a8a8a' }} axisLine={false} tickLine={false} width={25} allowDecimals={false} />
@@ -84,13 +124,13 @@ export default function Stats() {
         <div className="rounded-2xl p-5" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
           <h3 className="text-sm font-medium mb-3">Популярные страницы</h3>
           <div className="space-y-1.5 max-h-52 overflow-y-auto">
-            {data.pages.map((p) => (
+            {pages.map((p) => (
               <div key={p.page} className="flex justify-between items-center px-3 py-1.5 rounded-lg text-sm" style={{ backgroundColor: 'var(--bg-primary)' }}>
                 <span className="truncate mr-3" style={{ color: 'var(--text-secondary)' }}>{p.page}</span>
                 <span className="font-medium shrink-0" style={{ color: 'var(--accent)' }}>{p.cnt}</span>
               </div>
             ))}
-            {data.pages.length === 0 && <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Нет данных</p>}
+            {pages.length === 0 && <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Нет данных</p>}
           </div>
         </div>
       </div>
@@ -98,13 +138,13 @@ export default function Stats() {
       {/* Grouped visits by IP */}
       <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
         <div className="px-5 py-3" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-          <h3 className="text-sm font-medium">Визиты по IP ({data.grouped_visits.length})</h3>
+          <h3 className="text-sm font-medium">Визиты по IP ({groupedVisits.length})</h3>
         </div>
         <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
-          {data.grouped_visits.map((group) => (
+          {groupedVisits.map((group) => (
             <IPGroup key={group.ip} group={group} />
           ))}
-          {data.grouped_visits.length === 0 && (
+          {groupedVisits.length === 0 && (
             <div className="px-5 py-4 text-sm" style={{ color: 'var(--text-muted)' }}>Нет визитов</div>
           )}
         </div>
@@ -117,7 +157,7 @@ function IPGroup({ group }: { group: { ip: string; count: number; last_seen: str
   const [open, setOpen] = useState(false);
 
   // Parse short UA
-  const ua = group.user_agent;
+  const ua = group.user_agent || '';
   let shortUa = 'Unknown';
   if (ua.includes('iPhone')) shortUa = 'iPhone';
   else if (ua.includes('Android')) shortUa = 'Android';
@@ -144,7 +184,7 @@ function IPGroup({ group }: { group: { ip: string; count: number; last_seen: str
           <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{shortUa}</span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{group.last_seen.replace('T', ' ')}</span>
+          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{group.last_seen ? group.last_seen.replace('T', ' ') : 'unknown'}</span>
           <span style={{ color: 'var(--text-muted)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
             &#9662;
           </span>
