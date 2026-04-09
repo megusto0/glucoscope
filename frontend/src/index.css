@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #1e1e1e;
+  --bg-card: #2a2a2a;
+  --bg-hover: #333333;
+  --text-primary: #e8e8e8;
+  --text-secondary: #8a8a8a;
+  --text-muted: #5a5a5a;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.1);
+  --accent: #d4956a;
+  --accent-dim: rgba(212, 149, 106, 0.15);
+  --green: #5cb888;
+  --green-dim: rgba(92, 184, 136, 0.12);
+  --yellow: #c9a84c;
+  --orange: #d48a4c;
+  --red: #c75f5f;
+  --red-dim: rgba(199, 95, 95, 0.12);
+  --blue: #5b8ec7;
+  --blue-dim: rgba(91, 142, 199, 0.12);
+  --cyan: #6aafb8;
+  --cyan-dim: rgba(106, 175, 184, 0.12);
+  --purple: #9a7cc7;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  display: flex;
+  min-height: 100vh;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+
+::selection {
+  background: var(--accent-dim);
+  color: var(--text-primary);
+}
+
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: rgba(255, 255, 255, 0.05);
+}
+
+.recharts-text {
+  fill: var(--text-secondary) !important;
+  font-size: 11px;
+}
+
+.recharts-tooltip-wrapper {
+  outline: none;
+}
+
+/* Mobile: stack layout vertically */
+@media (max-width: 767px) {
+  #root {
+    flex-direction: column;
+  }
+
+  /* Add top padding for hamburger button */
+  main {
+    padding-top: 48px !important;
+  }
+}
