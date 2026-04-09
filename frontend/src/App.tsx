@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
-import Dashboard from './pages/Dashboard';
+import Главная from './pages/Главная';
 import DailyView from './pages/DailyView';
 import GlycemicProfile from './pages/GlycemicProfile';
 import MealsAnalysis from './pages/MealsAnalysis';
@@ -20,7 +20,7 @@ function AppContent({ patientId, setPatientId }: { patientId: number | null; set
       <Sidebar patientId={patientId} onPatientChange={setPatientId} />
       <main className="flex-1 overflow-auto min-h-screen">
         <Routes>
-          <Route path="/" element={<Dashboard onPatientChange={setPatientId} />} />
+          <Route path="/" element={<Главная onPatientChange={setPatientId} />} />
           <Route path="/patients/:patientId/daily" element={<DailyView />} />
           <Route path="/patients/:patientId/profile" element={<GlycemicProfile />} />
           <Route path="/patients/:patientId/meals" element={<MealsAnalysis />} />
@@ -28,9 +28,9 @@ function AppContent({ patientId, setPatientId }: { patientId: number | null; set
           <Route path="/compare" element={<ComparePatients />} />
           <Route path="/about" element={<About />} />
           <Route path="/stats" element={<Stats />} />
-          <Route path="/daily" element={patientId ? <Navigate to={`/patients/${patientId}/daily`} /> : <Dashboard onPatientChange={setPatientId} />} />
-          <Route path="/profile" element={patientId ? <Navigate to={`/patients/${patientId}/profile`} /> : <Dashboard onPatientChange={setPatientId} />} />
-          <Route path="/meals" element={patientId ? <Navigate to={`/patients/${patientId}/meals`} /> : <Dashboard onPatientChange={setPatientId} />} />
+          <Route path="/daily" element={patientId ? <Navigate to={`/patients/${patientId}/daily`} /> : <Главная onPatientChange={setPatientId} />} />
+          <Route path="/profile" element={patientId ? <Navigate to={`/patients/${patientId}/profile`} /> : <Главная onPatientChange={setPatientId} />} />
+          <Route path="/meals" element={patientId ? <Navigate to={`/patients/${patientId}/meals`} /> : <Главная onPatientChange={setPatientId} />} />
         </Routes>
       </main>
     </>

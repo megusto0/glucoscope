@@ -4,7 +4,7 @@ import MetricCard from '../components/MetricCard';
 import Loader from '../components/Loader';
 import { tirColor } from '../utils/colors';
 
-interface DashboardData {
+interface ГлавнаяData {
   patient_count: number;
   total_days: number;
   total_cgm: number;
@@ -19,8 +19,8 @@ interface Patient {
   meal_count: number;
 }
 
-export default function Dashboard({ onPatientChange }: { onPatientChange: (id: number) => void }) {
-  const { data: dashboard, loading: l1 } = useApi<DashboardData>('/api/dashboard');
+export default function Главная({ onPatientChange }: { onPatientChange: (id: number) => void }) {
+  const { data: главная, loading: l1 } = useApi<ГлавнаяData>('/api/dashboard');
   const { data: patients, loading: l2 } = useApi<Patient[]>('/api/patients');
   const navigate = useNavigate();
 
@@ -38,31 +38,31 @@ export default function Dashboard({ onPatientChange }: { onPatientChange: (id: n
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <MetricCard
           title="Пациенты"
-          value={dashboard?.patient_count ?? null}
+          value={главная?.patient_count ?? null}
           description="Количество пациентов с данными CGM в базе"
         />
         <MetricCard
           title="Дни наблюдения"
-          value={dashboard?.total_days ?? null}
+          value={главная?.total_days ?? null}
           description="Суммарное количество дней с данными CGM по всем пациентам"
         />
         <MetricCard
           title="CGM-измерений"
-          value={dashboard?.total_cgm ? dashboard.total_cgm.toLocaleString() : null}
+          value={главная?.total_cgm ? главная.total_cgm.toLocaleString() : null}
           description="Общее количество точек измерения глюкозы (шаг ~5 мин)"
         />
         <MetricCard
           title="Приёмы пищи"
-          value={dashboard?.total_meals ?? null}
+          value={главная?.total_meals ?? null}
           description="Количество зарегистрированных приёмов пищи по всем пациентам"
         />
         <MetricCard
           title="Средний TIR"
-          value={dashboard?.avg_tir !== null ? `${Math.round(dashboard!.avg_tir!)}%` : null}
+          value={главная?.avg_tir !== null ? `${Math.round(главная!.avg_tir!)}%` : null}
           description="Среднее время в целевом диапазоне 70-180 мг/дл по всем пациентам"
           norm="> 70%"
-          color={tirColor(dashboard?.avg_tir ?? null)}
-          progress={dashboard?.avg_tir ?? undefined}
+          color={tirColor(главная?.avg_tir ?? null)}
+          progress={главная?.avg_tir ?? undefined}
         />
       </div>
 

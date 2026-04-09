@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
 
 interface Patient {
@@ -14,7 +14,7 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { path: '/', label: 'Dashboard' },
+  { path: '/', label: 'Главная' },
   { path: '/daily', label: 'Суточный обзор', needsPatient: true },
   { path: '/profile', label: 'Гликемический профиль', needsPatient: true },
   { path: '/meals', label: 'Приёмы пищи', needsPatient: true },
